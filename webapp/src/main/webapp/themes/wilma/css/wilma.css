@@ -1735,7 +1735,8 @@ span.subclassExpandMinus {
 }
 
 /* Ask VIVO button beside the site search box (fork addition) */
-#search-field a.ask-vivo-button {
+#search-field a.ask-vivo-button,
+#search-home-field a.ask-vivo-button {
     display: inline-block;
     background-color: #f0ad4e;
     color: #fff;
@@ -1749,7 +1750,8 @@ span.subclassExpandMinus {
     white-space: nowrap;
 }
 
-#search-field a.ask-vivo-button:hover {
+#search-field a.ask-vivo-button:hover,
+#search-home-field a.ask-vivo-button:hover {
     background-color: #e09b3a;
     color: #fff;
 }

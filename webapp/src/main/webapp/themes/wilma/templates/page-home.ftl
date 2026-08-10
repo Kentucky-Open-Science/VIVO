@@ -46,6 +46,7 @@
                         <div id="search-home-field">
                             <input type="text" name="querytext" class="search-homepage" value="" autocapitalize="off" />
                             <input type="submit" value="${i18n().search_button}" class="search" />
+                            <a href="${urls.base}/askVivo" class="ask-vivo-button" title="Ask a question in plain language">Ask VIVO</a>
                             <input type="hidden" name="filters_category"  value="" autocapitalize="off" />
                         </div>
 
