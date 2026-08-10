@@ -1,0 +1,215 @@
+/* $This file is distributed under the terms of the license in LICENSE$ */
+
+/* Styles for the Ask VIVO chat page. */
+
+#askvivo {
+    max-width: 860px;
+}
+
+.askvivo-intro {
+    color: #555;
+    margin-bottom: 1em;
+}
+
+.askvivo-hint {
+    color: #888;
+    font-size: 0.85em;
+    margin-top: 0.5em;
+}
+
+.askvivo-notice {
+    border: 1px solid #e0c56e;
+    background-color: #fdf6dd;
+    border-radius: 6px;
+    padding: 1em 1.25em;
+    max-width: 860px;
+}
+
+.askvivo-notice code {
+    background-color: #f4ecd0;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}
+
+/* Conversation area */
+
+#askvivo-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    margin-bottom: 1em;
+    min-height: 2em;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0.25em;
+}
+
+.askvivo-bubble {
+    border-radius: 10px;
+    padding: 0.7em 1em;
+    max-width: 85%;
+    overflow-wrap: break-word;
+}
+
+.askvivo-bubble p {
+    margin: 0 0 0.5em 0;
+}
+
+.askvivo-bubble p:last-child {
+    margin-bottom: 0;
+}
+
+/* The theme styles p/li/etc. directly, which beats an inherited bubble color,
+   so pin the text color on the descendants too. */
+.askvivo-user,
+.askvivo-user p,
+.askvivo-user li,
+.askvivo-user span {
+    color: #fff;
+}
+
+.askvivo-user {
+    align-self: flex-end;
+    background-color: #2485ae;
+}
+
+.askvivo-assistant,
+.askvivo-assistant p,
+.askvivo-assistant li,
+.askvivo-assistant span {
+    color: #222;
+}
+
+.askvivo-assistant {
+    align-self: flex-start;
+    background-color: #f0f0f0;
+}
+
+.askvivo-error {
+    background-color: #fbeaea;
+    border: 1px solid #e0b4b4;
+    color: #7a2a2a;
+}
+
+.askvivo-error-detail {
+    font-size: 0.85em;
+    color: #9a5c5c;
+}
+
+/* Loading indicator */
+
+.askvivo-loading .askvivo-dot {
+    animation: askvivo-blink 1.2s infinite;
+}
+
+.askvivo-loading .askvivo-dot:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.askvivo-loading .askvivo-dot:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+@keyframes askvivo-blink {
+    0%, 60%, 100% { opacity: 0.2; }
+    30% { opacity: 1; }
+}
+
+/* Entity chips */
+
+.askvivo-entities {
+    margin-top: 0.6em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+}
+
+.askvivo-chip {
+    display: inline-block;
+    background-color: #dceef5;
+    border: 1px solid #a8cfdf;
+    border-radius: 999px;
+    padding: 0.15em 0.75em;
+    font-size: 0.85em;
+    color: #14607f;
+    text-decoration: none;
+}
+
+.askvivo-chip:hover {
+    background-color: #c6e3ef;
+    text-decoration: none;
+}
+
+/* Collapsible SPARQL and results */
+
+.askvivo-bubble details {
+    margin-top: 0.6em;
+    font-size: 0.9em;
+}
+
+.askvivo-bubble summary {
+    cursor: pointer;
+    color: #14607f;
+}
+
+.askvivo-sparql {
+    background-color: #2b2b2b;
+    color: #e8e8e8;
+    border-radius: 6px;
+    padding: 0.75em;
+    overflow-x: auto;
+    font-size: 0.85em;
+    white-space: pre;
+}
+
+.askvivo-table-wrapper {
+    overflow-x: auto;
+    margin-top: 0.4em;
+}
+
+.askvivo-table {
+    border-collapse: collapse;
+    font-size: 0.85em;
+    width: 100%;
+}
+
+.askvivo-table th,
+.askvivo-table td {
+    border: 1px solid #ccc;
+    padding: 0.3em 0.6em;
+    text-align: left;
+    vertical-align: top;
+}
+
+.askvivo-table th {
+    background-color: #e4e4e4;
+}
+
+/* Input form */
+
+#askvivo-form {
+    display: flex;
+    gap: 0.5em;
+    align-items: flex-end;
+}
+
+#askvivo-question {
+    flex: 1;
+    resize: vertical;
+    padding: 0.5em;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+#askvivo-send {
+    padding: 0.5em 1.4em;
+    cursor: pointer;
+}
+
+#askvivo-send:disabled,
+#askvivo-question:disabled {
+    opacity: 0.6;
+    cursor: default;
+}

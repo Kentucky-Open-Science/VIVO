@@ -25,6 +25,9 @@
             <#if urls.contact??>
                 <li role="listitem"><a href="${urls.contact}" title="${i18n().menu_contactus}">${i18n().menu_contactus}</a></li>
             </#if>
+            <li role="listitem"><a href="${urls.base}/dashboard" title="Dashboard">Dashboard</a></li>
+            <li role="listitem"><a href="${urls.base}/graphExplorer" title="Graph Explorer">Graph Explorer</a></li>
+            <li role="listitem"><a href="${urls.base}/askVivo" title="Ask VIVO">Ask VIVO</a></li>
             <li role="listitem"><a href="http://www.vivoweb.org/support" target="blank" title="${i18n().menu_support}">${i18n().menu_support}</a></li>
         </ul>
     </nav>

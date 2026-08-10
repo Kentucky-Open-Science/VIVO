@@ -4,6 +4,26 @@
 
 VIVO is an open source semantic web tool for research discovery -- finding people and the research they do.
 
+## Fork additions (Kentucky Open Science)
+
+This fork adds capabilities inspired by the [UK Research Knowledge Graph](https://github.com/Kentucky-Open-Science) project:
+
+| Capability | Route | Notes |
+| ---------- | ----- | ----- |
+| Statistics dashboard | `/dashboard` | Live entity counts, recent publications, top researchers and organizations |
+| Interactive graph explorer | `/graphExplorer` | D3 force-directed view of the knowledge graph; search, click-to-expand neighborhoods |
+| Ask VIVO (AI search) | `/askVivo` | Natural-language questions translated to SPARQL by an OpenAI-compatible LLM, executed read-only, results summarized. Configure `llm.baseUrl`, `llm.apiKey`, `llm.model` in `runtime.properties` |
+| Scholarly data ingest | `/dataIngest` | Built-in PubMed (NCBI eUtils) and NIH RePORTER harvesting into VIVO RDF with idempotent URIs; linked from Site Admin &rarr; Advanced Data Tools |
+
+Links to the three public pages are in the site footer (wilma theme). The ingest tool requires the Advanced Data Tools permission (log in as an admin).
+
+Known limitations of the fork additions:
+
+- PubMed authors are created as `vcard:Individual` name stubs (VIVO's convention for unclaimed authors), not `foaf:Person` profiles — so PubMed-only data does not feed "Top Researchers" or the co-authorship overview until authors are claimed or profiles created. NIH RePORTER PIs *do* become `foaf:Person` individuals (keyed by RePORTER profile id).
+- The Ask VIVO endpoint enforces read-only SELECT queries with a row cap, but an adversarial question could still produce an expensive aggregate query; the rate limits (4/min per session, 10/min global) bound the damage.
+- Dashboard responses are cached for 5 minutes globally (first requester's locale wins; a transient store failure can cache zeros for one cycle).
+- A running harvest is a daemon thread: stopping Tomcat mid-harvest simply abandons the batch in progress (idempotent URIs make re-running safe).
+
 VIVO supports editing, searching, browsing and visualizing research activity in order to discover people, programs, 
 facilities, funding, scholarly works and events. VIVO's search returns results faceted by type for rapid retrieval of 
 desired information across disciplines.
