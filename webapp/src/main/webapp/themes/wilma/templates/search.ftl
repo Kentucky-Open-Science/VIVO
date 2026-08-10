@@ -10,6 +10,7 @@
             <div id="search-field">
                 <input type="text" id="filter_input_querytext" name="querytext" class="search-vivo" value="${querytext!?html}" autocapitalize="off" />
                 <input type="submit" value="${i18n().search_button}" class="search">
+                <a href="${urls.base}/askVivo" class="ask-vivo-button" title="Ask a question in plain language">Ask VIVO</a>
             </div>
         </form>
     </fieldset>

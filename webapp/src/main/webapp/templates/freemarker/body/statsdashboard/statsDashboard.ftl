@@ -4,6 +4,13 @@ ${stylesheets.add('<link rel="stylesheet" href="${urls.base}/css/statsdashboard/
 
 <h2>Statistics Dashboard</h2>
 
+<div class="stats-dashboard-actions">
+    <a href="${urls.base}/askVivo" class="stats-dashboard-action stats-dashboard-action-primary"
+       title="Ask a question about the data in plain language">&#128172; Ask VIVO</a>
+    <a href="${urls.base}/graphExplorer" class="stats-dashboard-action"
+       title="Explore the knowledge graph visually">&#128279; Graph Explorer</a>
+</div>
+
 <div id="stats-dashboard">
     <div id="stats-dashboard-loading" class="stats-dashboard-loading">Loading dashboard data&#8230;</div>
     <div id="stats-dashboard-error" class="stats-dashboard-error" style="display: none;">

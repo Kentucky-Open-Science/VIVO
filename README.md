@@ -15,7 +15,18 @@ This fork adds capabilities inspired by the [UK Research Knowledge Graph](https:
 | Ask VIVO (AI search) | `/askVivo` | Natural-language questions translated to SPARQL by an OpenAI-compatible LLM, executed read-only, results summarized. Configure `llm.baseUrl`, `llm.apiKey`, `llm.model` in `runtime.properties` |
 | Scholarly data ingest | `/dataIngest` | Built-in PubMed (NCBI eUtils) and NIH RePORTER harvesting into VIVO RDF with idempotent URIs; linked from Site Admin &rarr; Advanced Data Tools |
 
-Links to the three public pages are in the site footer (wilma theme). The ingest tool requires the Advanced Data Tools permission (log in as an admin).
+Links to the three public pages are in the site footer (wilma theme), the dashboard has action buttons, and an "Ask VIVO" button sits beside the site search box. The ingest tool requires the Advanced Data Tools permission (log in as an admin).
+
+### Deploying with Docker Compose
+
+Set in `.env`:
+
+- `VIVO_HOST_PORT` — public port (dev server: `8002`)
+- `VIVO_BASE_URL` — public address (e.g. `http://128.163.202.61:8002`); `start.sh` templates `Vitro.defaultNamespace` from it on container start so minted URIs resolve. Set it **before** first content is created — changing it later orphans existing URIs.
+
+The container now enforces `vitro.local.solr.url` (pointing at the `vivo-solr` service) on **every** start, so a stale `runtime.properties` pointing at `localhost:8983` can no longer break startup with "Could not set up the Solr search engine".
+
+An automatic PubMed harvest on startup can be enabled with `ingest.pubmed.onStartup = true` in `runtime.properties` (see `example.runtime.properties` for the related keys).
 
 Known limitations of the fork additions:
 

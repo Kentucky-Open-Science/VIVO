@@ -25,13 +25,25 @@ if [ -f "$VIVO_HOME/config/example.runtime.properties" ]; then
   then
     echo "Copying example.runtime.properties to $VIVO_HOME/config/runtime.properties"
     cp "$VIVO_HOME/config/example.runtime.properties" "$VIVO_HOME/config/runtime.properties"
-
-    # template runtime.properties vitro.local.solr.url value to $SOLR_URL value
-    echo "Templating runtime.properties vitro.local.solr.url = $SOLR_URL"
-    sed -i "s,http://localhost:8983/solr/vivocore,$SOLR_URL,g" "$VIVO_HOME/config/runtime.properties"
   else
     echo "Using existing $VIVO_HOME/config/runtime.properties"
   fi
+fi
+
+# Enforce the Solr URL on every start (not just first boot), so a stale
+# runtime.properties left pointing at localhost cannot break startup.
+if [ -f "$VIVO_HOME/config/runtime.properties" ] && [ -n "$SOLR_URL" ]; then
+  echo "Setting runtime.properties vitro.local.solr.url = $SOLR_URL"
+  sed -i "s|^[[:space:]]*vitro\.local\.solr\.url[[:space:]]*=.*|vitro.local.solr.url = $SOLR_URL|" "$VIVO_HOME/config/runtime.properties"
+fi
+
+# When VIVO_BASE_URL is set (the public address of this instance, e.g.
+# http://128.163.202.61:8002), point the default namespace at it so minted
+# URIs and links resolve. Only set this before first content is created;
+# changing it later orphans existing URIs.
+if [ -f "$VIVO_HOME/config/runtime.properties" ] && [ -n "$VIVO_BASE_URL" ]; then
+  echo "Setting runtime.properties Vitro.defaultNamespace = $VIVO_BASE_URL/individual/"
+  sed -i "s|^[[:space:]]*Vitro\.defaultNamespace[[:space:]]*=.*|Vitro.defaultNamespace = $VIVO_BASE_URL/individual/|" "$VIVO_HOME/config/runtime.properties"
 fi
 
 # copy applicationSetup.n3 if it does not already exist in target home directory

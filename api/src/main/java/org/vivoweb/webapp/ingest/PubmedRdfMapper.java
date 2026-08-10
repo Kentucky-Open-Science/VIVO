@@ -32,6 +32,9 @@ public final class PubmedRdfMapper {
     public static final String VIVO_DATETIMEVALUE_CLASS = "http://vivoweb.org/ontology/core#DateTimeValue";
 
     // Property URIs
+    public static final String BIBO_ABSTRACT = "http://purl.org/ontology/bibo/abstract";
+    public static final String BIBO_CONTENT = "http://purl.org/ontology/bibo/content";
+    public static final String BIBO_PMCID = "http://purl.org/ontology/bibo/pmcid";
     public static final String BIBO_DOI = "http://purl.org/ontology/bibo/doi";
     public static final String BIBO_ISSN = "http://purl.org/ontology/bibo/issn";
     public static final String BIBO_ISSUE = "http://purl.org/ontology/bibo/issue";
@@ -51,6 +54,9 @@ public final class PubmedRdfMapper {
     public static final String VIVO_RANK = "http://vivoweb.org/ontology/core#rank";
     public static final String VIVO_RELATEDBY = "http://vivoweb.org/ontology/core#relatedBy";
     public static final String VIVO_RELATES = "http://vivoweb.org/ontology/core#relates";
+    public static final String VIVO_HAS_SUBJECT_AREA = "http://vivoweb.org/ontology/core#hasSubjectArea";
+    public static final String VIVO_SUBJECT_AREA_OF = "http://vivoweb.org/ontology/core#subjectAreaOf";
+    public static final String SKOS_CONCEPT = "http://www.w3.org/2004/02/skos/core#Concept";
 
     private PubmedRdfMapper() {
         // Static utility; never instantiated.
@@ -115,6 +121,40 @@ public final class PubmedRdfMapper {
     /** Deterministic URI of the article individual for a PMID. */
     public static String articleUri(String ns, String pmid) {
         return ns + "pubmed-" + pmid;
+    }
+
+    /**
+     * Adds the efetch/PMC details for an article: abstract (bibo:abstract),
+     * Methods-section text (bibo:content), PMCID, and MeSH descriptors as
+     * skos:Concept subject areas — the standard VIVO modeling, which makes
+     * them searchable and browsable.
+     */
+    public static void mapDetails(Model model, String ns, String pmid,
+            PubmedDetailFetcher.ArticleDetails details) {
+        if (details == null) {
+            return;
+        }
+        Resource article = model.createResource(articleUri(ns, pmid));
+
+        if (!isEmpty(details.getAbstractText())) {
+            article.addProperty(model.createProperty(BIBO_ABSTRACT), details.getAbstractText());
+        }
+        if (!isEmpty(details.getMethodsText())) {
+            article.addProperty(model.createProperty(BIBO_CONTENT), details.getMethodsText());
+        }
+        if (!isEmpty(details.getPmcid())) {
+            article.addProperty(model.createProperty(BIBO_PMCID), details.getPmcid().trim());
+        }
+
+        for (String[] mesh : details.getMeshTerms()) {
+            String ui = mesh[0];
+            String name = mesh[1];
+            Resource concept = model.createResource(ns + "mesh-" + sanitizeForUri(ui));
+            concept.addProperty(RDF.type, model.getResource(SKOS_CONCEPT));
+            concept.addProperty(model.createProperty(RDFS_LABEL), name);
+            article.addProperty(model.createProperty(VIVO_HAS_SUBJECT_AREA), concept);
+            concept.addProperty(model.createProperty(VIVO_SUBJECT_AREA_OF), article);
+        }
     }
 
     private static void mapJournal(Model model, String ns, Resource article, JsonNode summary) {

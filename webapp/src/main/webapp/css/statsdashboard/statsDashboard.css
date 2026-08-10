@@ -127,3 +127,39 @@
         white-space: normal;
     }
 }
+
+/* Action buttons linking to the other knowledge-graph pages */
+
+.stats-dashboard-actions {
+    display: flex;
+    gap: 0.6em;
+    margin: 0.4em 0 1em;
+    flex-wrap: wrap;
+}
+
+.stats-dashboard-action {
+    display: inline-block;
+    background-color: #e8eef2;
+    color: #14607f;
+    border: 1px solid #c7d8e4;
+    border-radius: 6px;
+    padding: 0.5em 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.stats-dashboard-action:hover {
+    background-color: #dbe6ec;
+    text-decoration: none;
+}
+
+.stats-dashboard-action-primary {
+    background-color: #2485ae;
+    border-color: #1d6f92;
+    color: #fff;
+}
+
+.stats-dashboard-action-primary:hover {
+    background-color: #1d6f92;
+    color: #fff;
+}

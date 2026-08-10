@@ -10,7 +10,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 
@@ -42,6 +44,8 @@ public class PubmedHarvester implements Runnable {
     private static final int SEARCH_PAGE_SIZE = 200;
     /** IDs per esummary call (NCBI recommends at most a few hundred). */
     private static final int SUMMARY_BATCH_SIZE = 100;
+    /** Articles per PMC full-text efetch call. */
+    private static final int PMC_BATCH_SIZE = 20;
     /** Articles per ChangeSet write. */
     private static final int WRITE_BATCH_SIZE = 25;
     /** Pause between eUtils calls: under three requests per second. */
@@ -111,6 +115,11 @@ public class PubmedHarvester implements Runnable {
                     continue;
                 }
 
+                // Abstracts, MeSH descriptors, and PMCIDs via efetch; then
+                // Methods sections from PMC for the articles that have one.
+                Map<String, PubmedDetailFetcher.ArticleDetails> details = fetchDetails(chunk);
+                fetchMethodsSections(details);
+
                 for (String pmid : chunk) {
                     if (job.isCancelRequested()) {
                         break;
@@ -131,6 +140,7 @@ public class PubmedHarvester implements Runnable {
                         }
 
                         PubmedRdfMapper.mapArticle(batch, defaultNamespace, pmid, summary);
+                        PubmedRdfMapper.mapDetails(batch, defaultNamespace, pmid, details.get(pmid));
                         inBatch++;
                         job.incrementProcessed();
                     } catch (Exception e) {
@@ -251,6 +261,76 @@ public class PubmedHarvester implements Runnable {
         }
 
         return ids;
+    }
+
+    /** efetch XML for a chunk of PMIDs: abstracts, MeSH descriptors, PMCIDs. */
+    private Map<String, PubmedDetailFetcher.ArticleDetails> fetchDetails(List<String> pmids) {
+        try {
+            throttle();
+            StringBuilder url = new StringBuilder(EUTILS_BASE);
+            url.append("efetch.fcgi?db=pubmed&retmode=xml&id=");
+            appendIds(url, pmids);
+            appendIdentification(url);
+            return PubmedDetailFetcher.parseEfetch(httpGet(url.toString()));
+        } catch (Exception e) {
+            job.incrementErrors();
+            job.log("efetch details request failed: " + e.getMessage());
+            log.error("efetch details request failed", e);
+            return new HashMap<String, PubmedDetailFetcher.ArticleDetails>();
+        }
+    }
+
+    /** PMC full-text fetch (20 articles per call) extracting Methods sections. */
+    private void fetchMethodsSections(Map<String, PubmedDetailFetcher.ArticleDetails> details) {
+        Map<String, PubmedDetailFetcher.ArticleDetails> byPmcid =
+                new HashMap<String, PubmedDetailFetcher.ArticleDetails>();
+        for (PubmedDetailFetcher.ArticleDetails d : details.values()) {
+            String pmcid = d.getPmcid();
+            if (pmcid != null && !pmcid.isEmpty()) {
+                byPmcid.put(pmcid.replaceFirst("^PMC", ""), d);
+            }
+        }
+        if (byPmcid.isEmpty()) {
+            return;
+        }
+
+        List<String> ids = new ArrayList<String>(byPmcid.keySet());
+        int found = 0;
+        for (int offset = 0; offset < ids.size(); offset += PMC_BATCH_SIZE) {
+            if (job.isCancelRequested()) {
+                return;
+            }
+            List<String> chunk = ids.subList(offset, Math.min(offset + PMC_BATCH_SIZE, ids.size()));
+            try {
+                throttle();
+                StringBuilder url = new StringBuilder(EUTILS_BASE);
+                url.append("efetch.fcgi?db=pmc&retmode=xml&id=");
+                appendIds(url, chunk);
+                appendIdentification(url);
+                Map<String, String> methodsByPmcid = PubmedDetailFetcher.parsePmcMethods(httpGet(url.toString()));
+                for (Map.Entry<String, String> entry : methodsByPmcid.entrySet()) {
+                    PubmedDetailFetcher.ArticleDetails d = byPmcid.get(entry.getKey());
+                    if (d != null) {
+                        d.setMethodsText(entry.getValue());
+                        found++;
+                    }
+                }
+            } catch (Exception e) {
+                job.incrementErrors();
+                job.log("PMC methods request failed: " + e.getMessage());
+                log.error("PMC methods request failed", e);
+            }
+        }
+        job.log("Methods sections found for " + found + " of " + byPmcid.size() + " PMC articles in chunk.");
+    }
+
+    private void appendIds(StringBuilder url, List<String> ids) {
+        for (int i = 0; i < ids.size(); i++) {
+            if (i > 0) {
+                url.append(',');
+            }
+            url.append(ids.get(i));
+        }
     }
 
     private JsonNode fetchSummaries(List<String> pmids) throws IOException {

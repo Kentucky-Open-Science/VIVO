@@ -1733,3 +1733,23 @@ span.subclassExpandMinus {
     background:url(../images/green_minus_sign.gif) right center no-repeat;
     min-height:18px;
 }
+
+/* Ask VIVO button beside the site search box (fork addition) */
+#search-field a.ask-vivo-button {
+    display: inline-block;
+    background-color: #f0ad4e;
+    color: #fff;
+    padding: 4px 12px;
+    margin-left: 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-decoration: none;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#search-field a.ask-vivo-button:hover {
+    background-color: #e09b3a;
+    color: #fff;
+}

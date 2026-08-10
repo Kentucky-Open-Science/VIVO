@@ -19,6 +19,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class IngestJob {
 
+    private static final org.apache.commons.logging.Log APP_LOG =
+            org.apache.commons.logging.LogFactory.getLog(IngestJob.class);
+
     /** Maximum number of log lines retained in the ring buffer. */
     private static final int MAX_LOG_LINES = 200;
 
@@ -161,8 +164,9 @@ public class IngestJob {
         log("FAILED: " + failureMessage);
     }
 
-    /** Appends a timestamped line to the log ring buffer. */
+    /** Appends a timestamped line to the log ring buffer (also mirrored to the app log). */
     public void log(String line) {
+        APP_LOG.info("[ingest:" + type + "] " + line);
         String stamped = new SimpleDateFormat("HH:mm:ss").format(new Date()) + "  " + line;
         synchronized (logLines) {
             while (logLines.size() >= MAX_LOG_LINES) {

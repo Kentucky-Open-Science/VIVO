@@ -34,6 +34,8 @@ services:
     environment:
       - RESET_HOME=${VIVO_RESET_HOME}
       - VERBOSE=${VIVO_VERBOSE}
+      - SOLR_URL=http://vivo-solr:${SOLR_CONTAINER_PORT}/solr/vivocore
+      - VIVO_BASE_URL=${VIVO_BASE_URL}
     ports:
       - ${VIVO_HOST_PORT}:${VIVO_CONTAINER_PORT}
     volumes:
